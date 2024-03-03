@@ -64,7 +64,7 @@ public class SpringSecurityConfig {
         .addFilter(new JwtValidationFilter(authenticationManager()))
         .csrf(AbstractHttpConfigurer::disable)
         /*
-          Agregando configuración de cors a spring security
+          Agregando el filtro de cors a spring security para que haga efecto
          */
         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .sessionManagement(management -> management.sessionCreationPolicy(STATELESS))
