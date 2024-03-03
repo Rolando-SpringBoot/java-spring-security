@@ -5,12 +5,11 @@ import static com.example.rbard.javaspringsecurity.util.constant.JwtUtil.SECRET_
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-import com.example.rbard.javaspringsecurity.entity.User;
+import com.example.rbard.javaspringsecurity.service.dto.UserAuthenticationRequestDto;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -20,7 +19,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.http.HttpStatus;
@@ -43,16 +41,19 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
   @Override
   public Authentication attemptAuthentication(HttpServletRequest request,
       HttpServletResponse response) throws AuthenticationException {
-    User user = objectMapper.readValue(request.getInputStream(), User.class);
+    UserAuthenticationRequestDto userAuthenticationDto = objectMapper.readValue(
+        request.getInputStream(), UserAuthenticationRequestDto.class);
+    String username = userAuthenticationDto.getUsername();
+    String password = userAuthenticationDto.getPassword();
 
     UsernamePasswordAuthenticationToken authenticationToken =
-        new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword());
+        new UsernamePasswordAuthenticationToken(username, password);
     return authenticationManager.authenticate(authenticationToken);
   }
 
   @Override
   protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
-      FilterChain chain, Authentication authResult) throws IOException, ServletException {
+      FilterChain chain, Authentication authResult) throws IOException {
     String username = ((org.springframework.security.core.
         userdetails.User) authResult.getPrincipal()).getUsername();
     List<String> roles = authResult.getAuthorities().stream()
@@ -61,10 +62,10 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     String token = Jwts.builder()
         .subject(username)
-        .expiration(Date.from(Instant.now().plusSeconds(30)))
+        .expiration(Date.from(Instant.now().plusSeconds(3600)))
         .issuedAt(Date.from(Instant.now()))
         .signWith(SECRET_KEY)
-        .claims(Collections.singletonMap("authorities", roles))
+        .claims(Collections.singletonMap("authorities", objectMapper.writeValueAsString(roles)))
         .compact();
 
     Map<String, String> body = new HashMap<>();
@@ -80,8 +81,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
   @Override
   protected void unsuccessfulAuthentication(HttpServletRequest request,
-      HttpServletResponse response, AuthenticationException failed)
-      throws IOException, ServletException {
+      HttpServletResponse response, AuthenticationException failed) throws IOException {
     Map<String, String> body = new HashMap<>();
     body.put("message", "Error en la autenticacion username o password incorrectos!");
     body.put("error", failed.getMessage());

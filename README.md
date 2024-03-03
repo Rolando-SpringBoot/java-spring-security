@@ -16,6 +16,8 @@ basado en la especificación RFC 7519.
 ![token work flow access](./img/token-workflow-access.png)
 
 # TECNOLOGÍAS
-## H2 + MapStruct + ExceptionHandler + JPA + PrePersist + Spring AOP annotation valid
-## PasswordEncoder + WebSecurityCustomizer + SecurityFilterChain + UserDetailsService
-## io.jsonwebtoken + UsernamePasswordAuthenticationFilter
+### H2 + MapStruct + ExceptionHandler + JPA + PrePersist + Spring AOP annotation valid
+### PasswordEncoder + WebSecurityCustomizer + SecurityFilterChain (permitAll, hasRole, authenticated, ..)
+### UserDetailsService + io.jsonwebtoken + AuthenticationConfiguration + UsernamePasswordAuthenticationFilter 
+### BasicAuthenticationFilter + EnabledMethodSecurity + @PreAuthorize
+### @CrossOrigin + CorsConfigurationSource + FilterRegistrationBean

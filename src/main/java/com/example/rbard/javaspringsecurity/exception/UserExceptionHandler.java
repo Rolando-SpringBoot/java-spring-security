@@ -1,8 +1,6 @@
 package com.example.rbard.javaspringsecurity.exception;
 
 import com.example.rbard.javaspringsecurity.controller.UserController;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +31,17 @@ public class UserExceptionHandler extends ResponseEntityExceptionHandler {
         .addArgument(ex.getClass().getSimpleName()).addArgument(ex.getMessage()).log();
     return handleExceptionInternal(ex, body, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR,
         request);
+  }
+
+  @ExceptionHandler(Exception.class)
+  protected ResponseEntity<Object> handleMethodException(Exception ex, WebRequest request) {
+    String defaultDetail = ex.getMessage();
+    ProblemDetail body = createProblemDetail(ex, HttpStatus.INTERNAL_SERVER_ERROR, defaultDetail,
+        null, null, request);
+    log.atError().setMessage("{} : {}")
+        .addArgument(ex.getClass().getSimpleName()).addArgument(ex.getMessage()).log();
+    return handleExceptionInternal(ex, body, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
+
   }
 
   @Override
