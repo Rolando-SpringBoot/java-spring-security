@@ -72,7 +72,7 @@ public class SpringSecurityConfig {
   }
 
   /*
-    Configuracion de cors de spring
+    Configuración de cors de spring
    */
   @Bean
   CorsConfigurationSource corsConfigurationSource() {
